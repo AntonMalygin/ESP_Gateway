@@ -1,4 +1,4 @@
-#include"Arduino.h"
+// Main headers
 #include "main.h"
 #include "EmbUI.h"
 #include "uistrings.h"   // non-localized text-strings
@@ -23,13 +23,15 @@ void setup() {
 
   Serial.println("Starting test...");
 
-  pinMode(LED_BUILTIN, OUTPUT); // we are goning to blink this LED
+  pinMode(LED_BUILTIN_L1, OUTPUT); // we are goning to blink this LED
+  pinMode(LED_BUILTIN_L2, OUTPUT); // we are goning to blink this LED
 
   // Start EmbUI framework
   embui.begin();
 
   // restore LED state from configuration
-  digitalWrite( LED_BUILTIN, !embui.param(FPSTR(V_LED)).toInt() );
+  digitalWrite( LED_BUILTIN_L1, !embui.param(FPSTR(V_LED_L1)).toInt() );
+  digitalWrite( LED_BUILTIN_L2, !embui.param(FPSTR(V_LED_L2)).toInt() );
 
   #ifdef USE_FTP
       ftp_setup(); // запуск ftp-сервера

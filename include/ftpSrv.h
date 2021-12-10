@@ -1,6 +1,3 @@
-#ifndef _FTPSRV_H_
-#define _FTPSRV_H_
-
 #ifdef ESP8266
  #include <ESP8266WiFi.h>
  #include <ESPAsyncTCP.h>
@@ -34,4 +31,3 @@ void ftp_setup(void){
 void ftp_loop(void){
   ftpSrv.handleFTP();        //make sure in loop you call handleFTP()!!  
 }
-#endif

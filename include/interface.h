@@ -1,6 +1,3 @@
-#ifndef _INTERFACE_H_
-#define _INTERFACE_H_
-
 #pragma once
 
 void block_menu(Interface *interf, JsonObject *data);
@@ -11,5 +8,3 @@ void pubCallback(Interface *interf);
 
 //void remote_action(RA action, ...);
 //uint8_t uploadProgress(size_t len, size_t total);
-
-#endif
