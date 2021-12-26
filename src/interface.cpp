@@ -56,7 +56,7 @@ void create_parameters(){
     embui.section_handle_add(FPSTR(T_SET_DEMO), action_demopage);           // обработка данных из секции "Demo"
 
     embui.section_handle_add(FPSTR(V_LED_L1), action_blink);               // обработка рычажка светодиода
-    embui.section_handle_add(FPSTR(V_LED_L2), action_blink);               // обработка рычажка светодиода
+    embui.section_handle_add(FPSTR(V_LED_L2), action_blink1);               // обработка рычажка светодиода
 
 #if defined CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
     // ESP32-C3 & ESP32-S2
@@ -150,19 +150,19 @@ void block_demopage(Interface *interf, JsonObject *data){
         interf->comment(F("Комментарий: набор контролов для демонстрации"));     // комментарий-описание секции
 
         // переключатель, связанный со светодиодом. Изменяется асинхронно 
-        interf->checkbox(FPSTR(V_LED_L2), F("Зелёный светодиод L2"), true);
-        interf->checkbox(FPSTR(V_LED_L1), F("Зелёный светодиод L1"), true);
+        //interf->checkbox(FPSTR(V_LED_L2), F("Зелёный светодиод L2"), true);
+        //interf->checkbox(FPSTR(V_LED_L1), F("Зелёный светодиод L1"), true);
       interf->json_section_end();
       interf->json_section_begin(FPSTR(T_SET_DEMO), "");
-        interf->text(FPSTR(V_VAR1), F("Текстовое поле"));                                 // текстовое поле со значением переменной из конфигурации
+        interf->text(FPSTR(V_VAR1), F("Текстовое поле")); // текстовое поле со значением переменной из конфигурации
         interf->text(FPSTR(V_VAR2), String(F("some default val")), F("Второе текстовое поле"), false);   // текстовое поле со значением "по-умолчанию"
         interf->checkbox(FPSTR(V_VAR3), F("Зависимый переключатель, введите on или off во второе поле ввода"));
         /*  кнопка отправки данных секции на обработку
         *  первый параметр FPSTR(T_DEMO) определяет какая секция откроется
         *  после обработки отправленных данных
         */ 
-        interf->button_submit(FPSTR(T_SET_DEMO), FPSTR(T_DICT[BasicUI::lang][TD::D_SEND]), FPSTR(P_GRAY));
-      interf->json_section_end();
+    interf->button_submit(FPSTR(T_SET_DEMO), FPSTR(T_DICT[BasicUI::lang][TD::D_SEND]), FPSTR(P_GRAY));
+    interf->json_section_end();
     interf->json_section_end();
     interf->json_frame_flush();
 }
@@ -208,15 +208,26 @@ void action_blink(Interface *interf, JsonObject *data){
   if (!data) return;  // здесь обрабатывает только данные
 
   SETPARAM(FPSTR(V_LED_L1));  // save new LED state to the config
+
+
+
+
+//    digitalWrite(LED_BUILTIN_L1, !(*data)[FPSTR(V_LED_L1)].as<unsigned int>()); // write inversed signal for builtin LED
+//  Serial.printf("LED_L1: %d\n", (*data)[FPSTR(V_LED_L1)].as<unsigned int>());
+}
+
+void action_blink1(Interface *interf, JsonObject *data){
+  if (!data) return;  // здесь обрабатывает только данные
   SETPARAM(FPSTR(V_LED_L2));  // save new LED state to the config
 
-  // set LED_L2 state to the new checkbox state
-  digitalWrite(LED_BUILTIN_L2, !(*data)[FPSTR(V_LED_L2)].as<unsigned int>()); // write inversed signal for builtin LED
-  Serial.printf("LED_L2: %d\n", (*data)[FPSTR(V_LED_L2)].as<unsigned int>());
 
-    digitalWrite(LED_BUILTIN_L1, !(*data)[FPSTR(V_LED_L1)].as<unsigned int>()); // write inversed signal for builtin LED
-  Serial.printf("LED_L1: %d\n", (*data)[FPSTR(V_LED_L1)].as<unsigned int>());
+  // set LED_L2 state to the new checkbox state
+ // digitalWrite(LED_BUILTIN_L2, !(*data)[FPSTR(V_LED_L2)].as<unsigned int>()); // write inversed signal for builtin LED
+ // Serial.printf("LED_L2: %d\n", (*data)[FPSTR(V_LED_L2)].as<unsigned int>());
+
+
 }
+
 
 /**
  * обработчик статуса (периодического опроса контроллера веб-приложением)

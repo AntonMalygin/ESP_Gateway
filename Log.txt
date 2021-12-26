@@ -1,0 +1,34 @@
+15:31:52.740 >
+15:31:52.740 > Rebooting...
+15:31:52.741 > ets Jul 29 2019 12:21:46
+15:31:52.741 >
+15:31:52.741 > rst:0xc (SW_CPU_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+15:31:52.741 > configsip: 0, SPIWP:0xee
+15:31:52.741 > clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+15:31:52.741 > mode:DIO, clock div:2
+15:31:52.741 > load:0x3fff0018,len:4
+15:31:52.741 > load:0x3fff001c,len:1044
+15:31:52.741 > load:0x40078000,len:10124
+15:31:52.741 > load:0x40080400,len:5828
+15:31:52.741 > entry 0x400806a8
+15:31:53.050 >
+15:31:53.050 >
+15:31:53.050 > setup: free heap  : 316472
+15:31:53.050 > setup: free PSRAM  : 0
+15:31:53.053 > Starting test...
+15:31:53.056 > E (247) uart: uart_get_buffered_data_len(1277): uart driver error
+15:31:53.061 > E ESP_ERROR_CHECK (246) uartfailed: esp_err_t 0xffffffff (ESP_FAIL) at 0x40088ce4
+15:31:53.067 > file: "src/main.cpp" line 74
+15:31:53.070 > func: void rx_task(void*)
+15:31:53.073 > expression: uart_get_buffered_data_len(uart_num, &buf_ok)
+15:31:53.078 >
+15:31:53.078 > ELF file SHA256: 0000000000000000
+15:31:53.081 >
+15:31:53.081 > Backtrace: 0x400887cc:0x3ffb8b50 0x40088ce7:0x3ffb8b70 0x400d4461:0x3ffb8b90 0x40089a7e:0x3ffb8bc0
+15:31:53.226 >   #0  0x400887cc:0x3ffb8b50 in esp_stack_ptr_in_dram at /home/runner/work/esp32-arduino-lib-builder/esp32-arduino-lib-builder/esp-idf/components/esp32/panic.c:715
+15:31:53.226 >       (inlined by) esp_stack_ptr_is_sane at /home/runner/work/esp32-arduino-lib-builder/esp32-arduino-lib-builder/esp-idf/components/esp32/include/esp_panic.h:93
+15:31:53.226 >       (inlined by) doBacktrace at /home/runner/work/esp32-arduino-lib-builder/esp32-arduino-lib-builder/esp-idf/components/esp32/panic.c:467
+15:31:53.226 >   #1  0x40088ce7:0x3ffb8b70 in esp_set_watchpoint at /home/runner/work/esp32-arduino-lib-builder/esp32-arduino-lib-builder/esp-idf/components/esp32/panic.c:715
+15:31:53.226 >   #2  0x400d4461:0x3ffb8b90 in rx_task(void*) at src/main.cpp:145
+15:31:53.226 >   #3  0x40089a7e:0x3ffb8bc0 in xRingbufferSendFromISR at /home/runner/work/esp32-arduino-lib-builder/esp32-arduino-lib-builder/esp-idf/components/esp_ringbuf/ringbuf.c:992
+15:31:53.226 >
