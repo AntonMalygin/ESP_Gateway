@@ -5,14 +5,7 @@
 
 #include "uistrings.h"   // non-localized text-strings
 
-#ifdef ESP32
-#if defined CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
-  #include <driver/temp_sensor.h>
-#endif
-  extern "C" int rom_phy_get_vdd33();
-#else
-  ADC_MODE(ADC_VCC);  // read internal Vcc
-#endif
+
 /**
  * можно нарисовать свой собственный интефейс/обработчики с нуля, либо
  * подключить статический класс с готовыми формами для базовых системных натсроек и дополнить интерфейс.
@@ -152,8 +145,8 @@ void block_demopage(Interface *interf, JsonObject *data){
         // переключатель, связанный со светодиодом. Изменяется асинхронно 
         //interf->checkbox(FPSTR(V_LED_L2), F("Зелёный светодиод L2"), true);
         //interf->checkbox(FPSTR(V_LED_L1), F("Зелёный светодиод L1"), true);
-      interf->json_section_end();
-      interf->json_section_begin(FPSTR(T_SET_DEMO), "");
+        interf->json_section_end();
+        interf->json_section_begin(FPSTR(T_SET_DEMO), "");
         interf->text(FPSTR(V_VAR1), F("Текстовое поле")); // текстовое поле со значением переменной из конфигурации
         interf->text(FPSTR(V_VAR2), String(F("some default val")), F("Второе текстовое поле"), false);   // текстовое поле со значением "по-умолчанию"
         interf->checkbox(FPSTR(V_VAR3), F("Зависимый переключатель, введите on или off во второе поле ввода"));
