@@ -46,7 +46,8 @@ void loop() {
 
   while (Serial2.available()) 
   {        
-    // If HC-12 has data
+    // If HC-12 has data 
+    // По идее бы радио обмен нужно реализовать как отдельную задачу.
   
   }
 
