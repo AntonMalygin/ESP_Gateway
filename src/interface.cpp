@@ -4,7 +4,8 @@
 #include "interface.h"
 
 #include "uistrings.h"   // non-localized text-strings
-
+#include "radio.h"
+extern radio_data1 rd;
 
 /**
  * можно нарисовать свой собственный интефейс/обработчики с нуля, либо
@@ -34,10 +35,7 @@ void create_parameters(){
     /**
      * регистрируем свои переменные
      */
-    embui.var_create(FPSTR(V_LED_L1), "1");    // LED_L1 default status is on
-    embui.var_create(FPSTR(V_LED_L2), "1");  // LED_L2 default status is on
-    embui.var_create(FPSTR(V_VAR1), "");    // заводим пустую переменную по умолчанию
-    embui.var_create(FPSTR(V_VAR3), "0");
+
 
     /**
      * добавляем свои обрабочки на вывод UI-секций
@@ -47,9 +45,7 @@ void create_parameters(){
 
     // обработчики
     embui.section_handle_add(FPSTR(T_SET_DEMO), action_demopage);           // обработка данных из секции "Demo"
-
-    embui.section_handle_add(FPSTR(V_LED_L1), action_blink);               // обработка рычажка светодиода
-    embui.section_handle_add(FPSTR(V_LED_L2), action_blink1);               // обработка рычажка светодиода
+    
 
 #if defined CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
     // ESP32-C3 & ESP32-S2
@@ -102,7 +98,7 @@ void block_menu(Interface *interf, JsonObject *data){
     /**
      * пункт меню - "демо"
      */
-    interf->option(FPSTR(T_DEMO), F("UI Demo"));
+    interf->option(FPSTR(T_DEMO), F("Данные в гараже"));
 
     /**
      * добавляем в меню пункт - настройки,
@@ -125,7 +121,7 @@ void block_demopage(Interface *interf, JsonObject *data){
     // параметр FPSTR(T_SET_DEMO) определяет зарегистрированный обработчик данных для секции
 #if defined CONFIG_IDF_TARGET_ESP32  
     LOG(println, F("CONFIG_IDF_TARGET_ESP32"));  
-    interf->json_section_main(FPSTR(T_DEMO), F("Some ESP32 demo controls"));
+    interf->json_section_main(FPSTR(T_DEMO), F("Показания датчиков в гараже"));
 #elif defined CONFIG_IDF_TARGET_ESP32S3
     LOG(println, F("CONFIG_IDF_TARGET_ESP32S3"));
     interf->json_section_main(FPSTR(T_DEMO), F("Some ESP32-S3 demo controls"));
@@ -139,22 +135,34 @@ void block_demopage(Interface *interf, JsonObject *data){
     LOG(println, F("ESP8266"));
     interf->json_section_main(FPSTR(T_SET_DEMO), F("Some demo controls"));
 #endif
-      interf->json_section_begin("", ""); // отдельная секция для светодиода, чтобы не мешало обработчику секции T_SET_DEMO для полей ниже
+        interf->json_section_begin("", ""); // отдельная секция для светодиода, чтобы не мешало обработчику секции T_SET_DEMO для полей ниже
         interf->comment(F("Комментарий: набор контролов для демонстрации"));     // комментарий-описание секции
 
         // переключатель, связанный со светодиодом. Изменяется асинхронно 
         //interf->checkbox(FPSTR(V_LED_L2), F("Зелёный светодиод L2"), true);
         //interf->checkbox(FPSTR(V_LED_L1), F("Зелёный светодиод L1"), true);
+        interf->json_section_line();
+
+        interf->display(F("Temp_ext"),String(rd.int_temp));
+        interf->display(F("Temp_in"),String(rd.ext_temp));
+        interf->display(F("Press"),String(random(710,760)));
         interf->json_section_end();
+        String clk; 
+        embui.timeProcessor.getDateTimeString(clk);
+        String data;
+        data = rd.dt.year + ":";
+        interf->display(F("clk"), data);
+
         interf->json_section_begin(FPSTR(T_SET_DEMO), "");
-        interf->text(FPSTR(V_VAR1), F("Текстовое поле")); // текстовое поле со значением переменной из конфигурации
-        interf->text(FPSTR(V_VAR2), String(F("some default val")), F("Второе текстовое поле"), false);   // текстовое поле со значением "по-умолчанию"
-        interf->checkbox(FPSTR(V_VAR3), F("Зависимый переключатель, введите on или off во второе поле ввода"));
+        // interf->text(FPSTR(V_VAR1), F("Текстовое поле")); // текстовое поле со значением переменной из конфигурации
+        // interf->text(FPSTR(V_VAR2), String(F("some default val")), F("Второе текстовое поле"), false);   // текстовое поле со значением "по-умолчанию"
+        // interf->checkbox(FPSTR(V_VAR3), F("Зависимый переключатель, введите on или off во второе поле ввода"));
         /*  кнопка отправки данных секции на обработку
         *  первый параметр FPSTR(T_DEMO) определяет какая секция откроется
         *  после обработки отправленных данных
         */ 
-    interf->button_submit(FPSTR(T_SET_DEMO), FPSTR(TD_SEND), FPSTR(P_GRAY));
+    // interf->button_submit(FPSTR(T_SET_DEMO), FPSTR(TD_SEND), FPSTR(P_GRAY));
+
     interf->json_section_end();
     interf->json_section_end();
     interf->json_frame_flush();
@@ -162,8 +170,8 @@ void block_demopage(Interface *interf, JsonObject *data){
 
 // сеттер для веб-контрола
 void set_checkbox3(Interface *interf, JsonObject *data){
-  Serial.printf_P(PSTR("Varialble_3 checkbox state after var2 check:%s\n"), (*data)[FPSTR(V_VAR3)]=="1"?PSTR("true"):PSTR("false"));
-  SETPARAM(FPSTR(V_VAR3)); // записать значение в конфиг
+  // Serial.printf_P(PSTR("Varialble_3 checkbox state after var2 check:%s\n"), (*data)[FPSTR(V_VAR3)]=="1"?PSTR("true"):PSTR("false"));
+  // SETPARAM(FPSTR(V_VAR3)); // записать значение в конфиг
 }
 
 void action_demopage(Interface *interf, JsonObject *data){
@@ -172,35 +180,35 @@ void action_demopage(Interface *interf, JsonObject *data){
     LOG(println, F("porcessig section demo"));
 
     // сохраняем значение 1-й переменной в конфиг фреймворка
-    SETPARAM(FPSTR(V_VAR1));
+    // SETPARAM(FPSTR(V_VAR1));
 
     // выводим значение 1-й переменной в serial
-    const char *text = (*data)[FPSTR(V_VAR1)];
-    Serial.printf_P(PSTR("Varialble_1 value:%s\n"), text );
+    // const char *text = (*data)[FPSTR(V_VAR1)];
+    // Serial.printf_P(PSTR("Varialble_1 value:%s\n"), text );
 
-    // берем указатель на 2-ю переменную
-    text = (*data)[FPSTR(V_VAR2)];
-    // или так:
-    // String var2 = (*data)[FPSTR(V_VAR2)];
-    // выводим значение 2-й переменной в serial
-    Serial.printf_P(PSTR("Varialble_2 value:%s\n"), text);
+    // // берем указатель на 2-ю переменную
+    // text = (*data)[FPSTR(V_VAR2)];
+    // // или так:
+    // // String var2 = (*data)[FPSTR(V_VAR2)];
+    // // выводим значение 2-й переменной в serial
+    // Serial.printf_P(PSTR("Varialble_2 value:%s\n"), text);
 
-    Serial.printf_P(PSTR("Varialble_3 checkbox state after send:%s\n"), (*data)[FPSTR(V_VAR3)]=="1"?PSTR("true"):PSTR("false"));
+    // Serial.printf_P(PSTR("Varialble_3 checkbox state after send:%s\n"), (*data)[FPSTR(V_VAR3)]=="1"?PSTR("true"):PSTR("false"));
 
     // для примера реализуем здесь зависимое поведение, если в строке записано "on" - включим чекбокс, если "off" - выключим, иначе ничего не делаем
-    DynamicJsonDocument doc(512);
-    JsonObject obj = doc.to<JsonObject>();
-    if(String(text)=="on"){
-      CALL_INTF(FPSTR(V_VAR3),"1",set_checkbox3);
-    } else if(String(text)=="off"){
-      CALL_INTF(FPSTR(V_VAR3),"0",set_checkbox3);
-    }
-}
+    // DynamicJsonDocument doc(512);
+    // JsonObject obj = doc.to<JsonObject>();
+    // if(String(text)=="on"){
+    //   CALL_INTF(FPSTR(V_VAR3),"1",set_checkbox3);
+    // } else if(String(text)=="off"){
+    //   CALL_INTF(FPSTR(V_VAR3),"0",set_checkbox3);
+    // }
+//}
 
-void action_blink(Interface *interf, JsonObject *data){
-  if (!data) return;  // здесь обрабатывает только данные
+// void action_blink(Interface *interf, JsonObject *data){
+//   if (!data) return;  // здесь обрабатывает только данные
 
-  SETPARAM(FPSTR(V_LED_L1));  // save new LED state to the config
+//   SETPARAM(FPSTR(V_LED_L1));  // save new LED state to the config
 
 
 
@@ -209,9 +217,9 @@ void action_blink(Interface *interf, JsonObject *data){
 //  Serial.printf("LED_L1: %d\n", (*data)[FPSTR(V_LED_L1)].as<unsigned int>());
 }
 
-void action_blink1(Interface *interf, JsonObject *data){
-  if (!data) return;  // здесь обрабатывает только данные
-  SETPARAM(FPSTR(V_LED_L2));  // save new LED state to the config
+// void action_blink1(Interface *interf, JsonObject *data){
+//   if (!data) return;  // здесь обрабатывает только данные
+//   SETPARAM(FPSTR(V_LED_L2));  // save new LED state to the config
 
 
   // set LED_L2 state to the new checkbox state
@@ -219,7 +227,7 @@ void action_blink1(Interface *interf, JsonObject *data){
  // Serial.printf("LED_L2: %d\n", (*data)[FPSTR(V_LED_L2)].as<unsigned int>());
 
 
-}
+//}
 
 
 /**

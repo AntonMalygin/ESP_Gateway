@@ -13,8 +13,8 @@
 #define RXD2 16	//(RX2)
 #define TXD2 17	//(TX2)
 
-radio_data1 *rd; // Структура данных для MSG ID = 1 . Простые данные от часов
-
+//radio_data1 rd; // Структура данных для MSG ID = 1 . Простые данные от часов
+radio_data1 rd;
 void rx_radio_filter(radio_frame * msg);
 
 
@@ -63,14 +63,16 @@ void rx_radio_filter(radio_frame * msg)
  uint8_t *bf = (uint8_t *)msg;
 if (msg->msgid == 1)
 {
-  //radio_data1 *rd = ( radio_data1 *)msg->data;
+  radio_data1 *rd1 = ( radio_data1 *)msg->data;
+  memcpy(&rd,rd1,sizeof(radio_data1));
   //rd=msg->data;
- rd=(radio_data1*)msg->data;
-
+ //rd=(radio_data1*)msg->data;
+ //rd->ds_error
+}
 // Отправляем в HC12, то что пришло по UART от часов. 
 Serial2.write(bf,msg->len+7);
 //Serial2.write((uint8_t *)msg,msg->len+7);
 
-}
+
 
 }
