@@ -23,6 +23,8 @@
 // static const char V_VAR2[] PROGMEM = "v2";
 // static const char V_VAR3[] PROGMEM = "v3";
 
+static const char V_UPDRATE[] PROGMEM = "updrt"; // время обновления
+
 // UI blocks
 static const char T_DEMO[] PROGMEM = "demo";     // генерация UI-секции "демо"
 static const char T_MORE[] PROGMEM = "more";

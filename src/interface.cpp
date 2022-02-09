@@ -18,6 +18,12 @@ extern radio_data1 rd;
  * переопределяем метод из фреймворка, регистрирующий необходимы нам в проекте переменные и методы обработки
  * 
  */
+#include "ts.h"
+
+extern Scheduler ts;
+
+Task tDisplayUpdater (5 * TASK_SECOND, TASK_FOREVER, &sensorPublisher, &ts, true);
+
 void create_parameters(){
     LOG(println, F("UI: Creating application vars"));
 
@@ -45,7 +51,7 @@ void create_parameters(){
 
     // обработчики
     embui.section_handle_add(FPSTR(T_SET_DEMO), action_demopage);           // обработка данных из секции "Demo"
-    
+    embui.section_handle_add(FPSTR(V_UPDRATE), setRate);           // обработка данных от сенсоров
 
 #if defined CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
     // ESP32-C3 & ESP32-S2
@@ -143,15 +149,7 @@ void block_demopage(Interface *interf, JsonObject *data){
         //interf->checkbox(FPSTR(V_LED_L1), F("Зелёный светодиод L1"), true);
         interf->json_section_line();
 
-        interf->display(F("Temp_ext"),String(rd.int_temp));
-        interf->display(F("Temp_in"),String(rd.ext_temp));
-        interf->display(F("Press"),String(random(710,760)));
-        interf->json_section_end();
-        String clk; 
-        embui.timeProcessor.getDateTimeString(clk);
-        String data;
-        data = rd.dt.year + ":";
-        interf->display(F("clk"), data);
+ 
 
         interf->json_section_begin(FPSTR(T_SET_DEMO), "");
         // interf->text(FPSTR(V_VAR1), F("Текстовое поле")); // текстовое поле со значением переменной из конфигурации
@@ -163,7 +161,17 @@ void block_demopage(Interface *interf, JsonObject *data){
         */ 
     // interf->button_submit(FPSTR(T_SET_DEMO), FPSTR(TD_SEND), FPSTR(P_GRAY));
 
-    interf->json_section_end();
+    interf->display(F("vcc"), String("3.3"));
+    interf->display(F("temp"), String(24));
+    
+
+    // Simple Clock display
+    String clk; embui.timeProcessor.getDateTimeString(clk);
+    interf->display(F("clk"), clk);
+
+    // Update rate slider
+   interf->range(FPSTR(V_UPDRATE), String(tDisplayUpdater.getInterval()/1000), String(1), String(30),String(1), String(F("Update Rate,sec")), true);
+    
     interf->json_section_end();
     interf->json_frame_flush();
 }
@@ -236,3 +244,46 @@ void action_demopage(Interface *interf, JsonObject *data){
 void pubCallback(Interface *interf){
     BasicUI::embuistatus(interf);
 }
+
+/**
+ * Call-back for Peeriodic publisher
+ * it reads (virtual) sensors and publisher values to the WebUI
+ */
+ 
+void sensorPublisher(){
+if (!embui.ws.count())
+{
+    return;
+}
+
+Interface *interf = new Interface(EmbUI::GetInstance(), &EmbUI::GetInstance()->ws, EMBUI_SMALL_JSON_SIZE);
+interf->json_frame_value();
+
+        interf->display(F("Temp_ext"),String(rd.int_temp));
+        interf->display(F("Temp_in"),String(rd.ext_temp));
+        interf->json_section_end();
+        interf->json_section_line();
+        interf->display(F("Press"),String(random(710,760)));
+
+        String clk; 
+        embui.timeProcessor.getDateTimeString(clk);
+        // String data;
+        // data = rd.dt.year + ":";
+        // interf->display(F("clk"), data);
+        interf->value(F("clk"), clk, true);
+
+        interf->json_frame_flush();
+        delete interf;
+}
+
+/**
+ * Change sensor update rate Callback
+ */
+
+void setRate (Interface *interf, JsonObject *data){
+    if (!data)
+    {
+        return;
+    }
+    tDisplayUpdater.setInterval( (*data)[FPSTR(V_UPDRATE)].as<unsigned int>()*1000); // Установка времени обновления в секундах
+} 
