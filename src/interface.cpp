@@ -160,18 +160,22 @@ void block_demopage(Interface *interf, JsonObject *data){
         *  после обработки отправленных данных
         */ 
     // interf->button_submit(FPSTR(T_SET_DEMO), FPSTR(TD_SEND), FPSTR(P_GRAY));
-
-    interf->display(F("vcc"), String("3.3"));
-    interf->display(F("temp"), String(24));
+    interf->json_section_line();             // "Live controls" 
+   
+    interf->display(F("temp_in"), String(rd.int_temp));
     
-
+    interf->display(F("temp_out"), String(rd.ext_temp));
+    interf->json_section_end();
+    interf->display(F("press"), String(rd.press));
+    interf->json_section_end();
+   // interf->json_section_line();             // "Live controls" 
     // Simple Clock display
     String clk; embui.timeProcessor.getDateTimeString(clk);
     interf->display(F("clk"), clk);
-
+    interf->json_section_end();
     // Update rate slider
    interf->range(FPSTR(V_UPDRATE), String(tDisplayUpdater.getInterval()/1000), String(1), String(30),String(1), String(F("Update Rate,sec")), true);
-    
+        
     interf->json_section_end();
     interf->json_frame_flush();
 }
@@ -259,11 +263,9 @@ if (!embui.ws.count())
 Interface *interf = new Interface(EmbUI::GetInstance(), &EmbUI::GetInstance()->ws, EMBUI_SMALL_JSON_SIZE);
 interf->json_frame_value();
 
-        interf->display(F("Temp_ext"),String(rd.int_temp));
-        interf->display(F("Temp_in"),String(rd.ext_temp));
-        interf->json_section_end();
-        interf->json_section_line();
-        interf->display(F("Press"),String(random(710,760)));
+        interf->display(F("temp_ext"),String(rd.int_temp));
+        interf->display(F("temp_in"),String(rd.ext_temp));
+        interf->display(F("press"),String(random(710,760)));
 
         String clk; 
         embui.timeProcessor.getDateTimeString(clk);

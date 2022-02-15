@@ -1,0 +1,27 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "cppbuild",
+			"label": "C/C++: xtensa-esp32-elf-gcc.exe сборка активного файла",
+			"command": "C:/Users/Anton/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-gcc.exe",
+			"args": [
+				"-fdiagnostics-color=always",
+				"-g",
+				"${file}",
+				"-o",
+				"${fileDirname}\\${fileBasenameNoExtension}.exe",
+				"-mlongcalls",
+				""
+			],
+			"options": {
+				"cwd": "C:/Users/Anton/.platformio/packages/toolchain-xtensa32/bin"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build",
+			"detail": "компилятор: C:/Users/Anton/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-gcc.exe"
+		}
+	]
+}
