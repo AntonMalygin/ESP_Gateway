@@ -3,7 +3,8 @@
 #include "EmbUI.h"
 #include "uistrings.h"   // non-localized text-strings
 #include "radio.h"
-
+#include "FS.h"
+#include <LITTLEFS.h>
 /**
  * построение интерфейса осуществляется в файлах 'interface.*'
  *
