@@ -1,2 +1,3 @@
 Import("env")
-env.Replace( MKSPIFFSTOOL=env.get("PROJECT_DIR") + '/mklittlefs' )
+print("Replace MKSPIFFSTOOL with mklittlefs.exe")
+env.Replace (MKSPIFFSTOOL = "mklittlefs.exe")

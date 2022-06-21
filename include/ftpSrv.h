@@ -6,7 +6,7 @@
 
 #ifdef ESP32
  #include <AsyncTCP.h>
- #include <LITTLEFS.h>
+#include <LittleFS.h>
 #endif
 
 #ifndef FTP_USER
